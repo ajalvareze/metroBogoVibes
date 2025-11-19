@@ -1,0 +1,5 @@
+{
+  "name": "Bogotá Metro Sim 2028",
+  "description": "A driving simulator for the upcoming elevated Bogotá Metro Line 1. Drive the train, manage speed, stop at stations, and hear AI-generated announcements.",
+  "requestFramePermissions": []
+}

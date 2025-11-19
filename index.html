@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bogotá Metro Sim 2028</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+              mono: ['JetBrains Mono', 'monospace'],
+            },
+            colors: {
+              metro: {
+                yellow: '#FFD100', // Bogota flag yellow / Metro branding
+                red: '#DA291C',    // Bogota flag red
+                green: '#009640',  // Eco/Transit green
+                dark: '#1a1a1a',
+                panel: '#2d2d2d',
+              }
+            }
+          },
+        },
+      }
+    </script>
+    <style>
+      body {
+        background-color: #111;
+        color: white;
+        overflow: hidden; /* Prevent scrolling on game view */
+      }
+      /* Custom scrollbar for log */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #2d2d2d; 
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #555; 
+        border-radius: 4px;
+      }
+
+      @keyframes tremble {
+        0% { transform: translate(0, 0) rotate(0deg); }
+        25% { transform: translate(1px, 1px) rotate(0.5deg); }
+        50% { transform: translate(-1px, -1px) rotate(-0.5deg); }
+        75% { transform: translate(1px, -1px) rotate(0.5deg); }
+        100% { transform: translate(0, 0) rotate(0deg); }
+      }
+      .animate-tremble {
+        animation: tremble 0.05s infinite;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/"
+  }
+}
+</script>
+</head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
