@@ -22,54 +22,141 @@ export const METRO_STATIONS: Station[] = [
 
 export const LANDMARKS: Landmark[] = [
   { id: 'l1', name: 'Mundo Aventura', distance: 2800, type: 'park', scale: 1.0 },
-  { id: 'l2', name: 'Estadio El Campín', distance: 9200, type: 'stadium', scale: 1.0 }, 
-  { id: 'l3', name: 'Torre Colpatria', distance: 7800, type: 'building', scale: 1.2 },
-  { id: 'l4', name: 'Monserrate', distance: 7500, type: 'mountain', scale: 2.0 },
+  { id: 'l2', name: 'Maloka', distance: 3600, type: 'building', scale: 1.5 },
+  { id: 'l3', name: 'Plaza de Toros', distance: 7100, type: 'stadium', scale: 0.9 },
+  { id: 'l4', name: 'Torre Colpatria', distance: 7800, type: 'building', scale: 1.2 },
+  { id: 'l5', name: 'Monserrate', distance: 7500, type: 'mountain', scale: 2.0 },
+  { id: 'l6', name: 'Estadio El Campín', distance: 9200, type: 'stadium', scale: 1.0 }, 
 ];
 
-export const CHALLENGES: Challenge[] = [
-  { 
-    id: 'c1', 
-    type: 'SPEED_LIMIT', 
-    startDistance: 2000, 
-    endDistance: 2200, // Very short zone (200m)
-    value: 30, // m/s
-    description: 'SLOW ZONE: Unstable Ground.', 
-    cleared: false 
-  },
-  { 
-    id: 'c2', 
-    type: 'OBSTACLE', 
-    startDistance: 3500, 
-    description: 'DANGER: Debris on Track. STOP.', 
-    cleared: false 
-  },
-  { 
-    id: 'c3', 
-    type: 'SPEED_LIMIT', 
-    startDistance: 5000, 
-    endDistance: 5200, 
-    value: 25, 
-    description: 'SLOW ZONE: Bridge Inspection.', 
-    cleared: false 
-  },
-  { 
-    id: 'c4', 
-    type: 'OBSTACLE', 
-    startDistance: 7000, 
-    description: 'DANGER: Construction Crane.', 
-    cleared: false 
-  },
-  { 
-    id: 'c5', 
-    type: 'SPEED_LIMIT', 
-    startDistance: 8500, 
-    endDistance: 8700, 
-    value: 20, 
-    description: 'SLOW ZONE: Curve Alignment.', 
-    cleared: false 
-  }
+// Crazy Mode Data Pool - Expanded with REAL Bogotá locations
+const CRAZY_LOCATIONS = [
+    // Original set
+    "Corabastos", "San Victorino", "El Restrepo", "La Piscina", "El Bronx",
+    "Unicentro", "Soacha", "Chía", "La Calera", "Paloquemao",
+    "7 de Agosto", "Chapinero Alto", "Usme Pueblo", "Doña Juana",
+    "Parque de la 93", "Zona T", "Las Aguas", "Museo del Oro",
+    "Patio Bonito", "Bosa La Libertad", "Suba Rincón", "Engativá Pueblo",
+    "Aeropuerto", "Salitre Mágico", "Parque Simón Bolívar", "La Picota",
+    // New Additions
+    "Cedritos", "Mazurén", "Toberín", "Portal Norte", "Calle 170",
+    "Héroes", "Calle 100", "Calle 127", "Pepe Sierra", "Virrey",
+    "Galerías", "Santa Isabel", "Comuneros", "Ricaurte", "CAD",
+    "Universidad Nacional", "Campín - U. Antonio Nariño", "Coliseo Live",
+    "Titán Plaza", "Minuto de Dios", "Granja - Carrera 77", "Quirigua",
+    "Portal de la 80", "Avenida Rojas", "El Tiempo - Maloka", "Salitre - El Greco",
+    "CAN", "Gobernación", "Quinta Paredes", "Corferias", "Ciudad Universitaria",
+    "Concejo de Bogotá", "Centro Memoria", "Universidades", "Bicentenario",
+    "San Diego", "Las Nieves", "Museo Nacional", "San Martín",
+    "Profamilia", "Marly", "Flores", "Calle 76", "Calle 85",
+    "Niza", "Humedal Córdoba", "Suba - Avenida Boyacá", "21 Ángeles",
+    "Transversal 91", "La Campiña", "Portal Suba", "Puente Largo",
+    "Alhambra", "Prado", "Alcalá", "Marsella", "Mundo Aventura",
+    "Pradera", "Distrito Grafiti", "Puente Aranda", "Zona Industrial",
+    "Carrera 43 - Comapan", "Gorgonzola", "Madelena", "Perdomo", "Portal Sur"
 ];
+
+const CRAZY_DESCRIPTIONS = [
+    "Chaotic energy here.", "Good luck stopping.", "Best empanadas.", "Traffic nightmare.",
+    "Tourists beware.", "Very expensive.", "Flooded when raining.", "Smells interesting.",
+    "Party central.", "Totally gentrified.", "Under construction forever.", "Zombie zone.",
+    "TransMilenio crowded here.", "Watch your pockets.", "Great view of the mountains.",
+    "Historical vibes.", "Full of students.", "Industrial sector.", "Hipster paradise."
+];
+
+// Pool of real landmarks with correct types for Crazy Mode
+const CRAZY_LANDMARKS_POOL: { name: string, type: Landmark['type'] }[] = [
+    { name: "Monserrate", type: "mountain" },
+    { name: "Guadalupe", type: "mountain" },
+    { name: "Torre Colpatria", type: "building" },
+    { name: "BD Bacatá", type: "building" },
+    { name: "Avianca Building", type: "building" },
+    { name: "Movistar Arena", type: "stadium" },
+    { name: "El Campín", type: "stadium" },
+    { name: "Estadio de Techo", type: "stadium" },
+    { name: "Jardín Botánico", type: "park" },
+    { name: "Parque Simón Bolívar", type: "park" },
+    { name: "Parque de la 93", type: "park" },
+    { name: "Virgilio Barco Library", type: "building" },
+    { name: "Planetario", type: "building" },
+    { name: "Plaza de Toros", type: "stadium" }
+];
+
+const shuffle = <T>(array: T[]): T[] => {
+    const newArr = [...array];
+    for (let i = newArr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [newArr[i], newArr[j]] = [newArr[j], newArr[i]];
+    }
+    return newArr;
+};
+
+export const generateCrazyData = () => {
+    const shuffledNames = shuffle(CRAZY_LOCATIONS);
+    
+    // Map standard physical stations to random names
+    const crazyStations: Station[] = METRO_STATIONS.map((s, i) => ({
+        ...s,
+        name: shuffledNames[i % shuffledNames.length],
+        description: CRAZY_DESCRIPTIONS[Math.floor(Math.random() * CRAZY_DESCRIPTIONS.length)]
+    }));
+
+    // Generate random landmarks from the real pool
+    const shuffledLandmarksPool = shuffle(CRAZY_LANDMARKS_POOL);
+    const crazyLandmarks: Landmark[] = [];
+    const landmarkCount = 6; // Keep same density
+    
+    for(let i=0; i<landmarkCount; i++) {
+        const item = shuffledLandmarksPool[i % shuffledLandmarksPool.length];
+        crazyLandmarks.push({
+            id: `cl-${i}`,
+            name: item.name,
+            distance: Math.random() * 10000, // Random position along track
+            type: item.type,
+            scale: 0.8 + Math.random() * 1.5
+        });
+    }
+
+    return { stations: crazyStations, landmarks: crazyLandmarks };
+};
+
+export const generateRandomChallenges = (stations: Station[]): Challenge[] => {
+    const challenges: Challenge[] = [];
+    // Create challenges in the gaps between stations
+    for (let i = 0; i < stations.length - 1; i++) {
+        const start = stations[i].distance;
+        const end = stations[i+1].distance;
+        const gap = end - start;
+        
+        // 40% chance of a challenge in this segment
+        if (Math.random() < 0.4 && gap > 400) {
+            const type = Math.random() > 0.5 ? 'OBSTACLE' : 'SPEED_LIMIT';
+            // Place roughly in middle
+            const pos = start + (gap * 0.4) + (Math.random() * gap * 0.2);
+            
+            if (type === 'OBSTACLE') {
+                challenges.push({
+                    id: `rnd-${i}`,
+                    type: 'OBSTACLE',
+                    startDistance: pos,
+                    description: 'UNEXPECTED DEBRIS',
+                    cleared: false
+                });
+            } else {
+                challenges.push({
+                    id: `rnd-${i}`,
+                    type: 'SPEED_LIMIT',
+                    startDistance: pos,
+                    endDistance: pos + 200,
+                    value: 20 + Math.floor(Math.random() * 20), // 20-40 km/h limit
+                    description: 'TRACK DAMAGE AHEAD',
+                    cleared: false
+                });
+            }
+        }
+    }
+    return challenges;
+};
 
 // Physics Constants (Arcade Mode)
 export const MAX_SPEED = 70; // m/s (approx 250 km/h)

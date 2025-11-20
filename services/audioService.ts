@@ -1,17 +1,39 @@
 // Simple synthesizer service using Web Audio API
 const AudioContextClass = (window.AudioContext || (window as any).webkitAudioContext);
 let audioCtx: AudioContext | null = null;
+let masterGain: GainNode | null = null;
 let musicNodes: { stop: () => void } | null = null;
 let trembleNodes: { stop: () => void } | null = null;
 
 const getCtx = () => {
-    if (!audioCtx) audioCtx = new AudioContextClass();
+    if (!audioCtx) {
+        audioCtx = new AudioContextClass();
+        masterGain = audioCtx.createGain();
+        masterGain.gain.value = 1;
+        masterGain.connect(audioCtx.destination);
+    }
     return audioCtx;
 }
+
+const getMasterGain = () => {
+    getCtx();
+    return masterGain!;
+}
+
+export const setMute = (isMuted: boolean) => {
+    const gain = getMasterGain();
+    if (gain) {
+        const ctx = getCtx();
+        const now = ctx.currentTime;
+        gain.gain.setValueAtTime(gain.gain.value, now);
+        gain.gain.linearRampToValueAtTime(isMuted ? 0 : 1, now + 0.1);
+    }
+};
 
 export const startMusic = () => {
     try {
         const ctx = getCtx();
+        const master = getMasterGain();
         if (ctx.state === 'suspended') ctx.resume();
         if (musicNodes) return; // Already playing
 
@@ -31,7 +53,7 @@ export const startMusic = () => {
 
         bassOsc.connect(bassFilter);
         bassFilter.connect(bassGain);
-        bassGain.connect(ctx.destination);
+        bassGain.connect(master); // Connect to master
         bassOsc.start(now);
 
         // 2. High Atmospheric Pad (Synthwave vibe)
@@ -52,7 +74,7 @@ export const startMusic = () => {
         padGain.gain.setValueAtTime(0.03, now);
         
         padOsc.connect(padGain);
-        padGain.connect(ctx.destination);
+        padGain.connect(master); // Connect to master
         padOsc.start(now);
         lfo.start(now);
 
@@ -65,7 +87,7 @@ export const startMusic = () => {
         pulseGain.gain.setValueAtTime(0, now);
         
         pulseOsc.connect(pulseGain);
-        pulseGain.connect(ctx.destination);
+        pulseGain.connect(master); // Connect to master
         pulseOsc.start(now);
 
         // Sequencer loop for the pulse
@@ -106,6 +128,7 @@ export const startTremble = () => {
     try {
         if (trembleNodes) return; // Already trembling
         const ctx = getCtx();
+        const master = getMasterGain();
         if(ctx.state === 'suspended') ctx.resume();
         const now = ctx.currentTime;
 
@@ -141,7 +164,7 @@ export const startTremble = () => {
         
         noiseSrc.connect(noiseFilter);
         noiseFilter.connect(gain);
-        gain.connect(ctx.destination);
+        gain.connect(master); // Connect to master
 
         noiseSrc.start(now);
         amOsc.start(now);
@@ -168,12 +191,13 @@ export const stopTremble = () => {
 export const playSound = (type: 'DOOR_OPEN' | 'DOOR_CLOSE' | 'BRAKE' | 'DEPART' | 'WARNING') => {
     try {
         const ctx = getCtx();
+        const master = getMasterGain();
         if(ctx.state === 'suspended') ctx.resume();
 
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.connect(gain);
-        gain.connect(ctx.destination);
+        gain.connect(master); // Connect to master
 
         const now = ctx.currentTime;
 
@@ -199,7 +223,7 @@ export const playSound = (type: 'DOOR_OPEN' | 'DOOR_CLOSE' | 'BRAKE' | 'DEPART' 
                 noiseGain.gain.setValueAtTime(0.05, now);
                 noiseGain.gain.linearRampToValueAtTime(0, now + 0.5);
                 noise.connect(noiseGain);
-                noiseGain.connect(ctx.destination);
+                noiseGain.connect(master); // Connect to master
                 noise.start(now);
                 break;
 
@@ -221,7 +245,7 @@ export const playSound = (type: 'DOOR_OPEN' | 'DOOR_CLOSE' | 'BRAKE' | 'DEPART' 
                 const slamOsc = ctx.createOscillator();
                 const slamGain = ctx.createGain();
                 slamOsc.connect(slamGain);
-                slamGain.connect(ctx.destination);
+                slamGain.connect(master); // Connect to master
                 slamOsc.frequency.setValueAtTime(100, now + 0.35);
                 slamOsc.frequency.exponentialRampToValueAtTime(0.01, now + 0.5);
                 slamGain.gain.setValueAtTime(0.2, now + 0.35);
